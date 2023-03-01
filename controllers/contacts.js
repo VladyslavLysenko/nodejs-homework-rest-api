@@ -49,7 +49,6 @@ const removeContact = async (req, res) => {
   });
 };
 
-
 module.exports = {
   listContacts: ctrlWrapper(listContacts),
   getContactById: ctrlWrapper(getContactById),
