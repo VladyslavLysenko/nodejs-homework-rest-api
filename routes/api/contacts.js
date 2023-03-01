@@ -1,5 +1,4 @@
 const express = require("express");
-const { HttpError } = require("../../helpers");
 const { schemas } = require("../../models/contact");
 const ctrl = require("../../controllers/contacts");
 
