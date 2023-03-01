@@ -1,38 +1,54 @@
-const { ctrlWrapper } = require("../helpers");
+const { ctrlWrapper, HttpError } = require("../helpers");
 const { Contact } = require("../models/contact");
 
-const listContacts = async () => {
+const listContacts = async (req, res) => {
   const result = await Contact.find();
-  return result;
+  res.json(result);
 };
 
-const getContactById = async (contactId) => {
-  const result = await Contact.findById(contactId);
-  return result || null;
+const getContactById = async (req, res) => {
+  const { id } = req.params;
+  const result = await Contact.findById(id);
+  if (!result) {
+    throw HttpError(404, "Not found");
+  }
+  res.json(result);
 };
 
-const updateStatusContact = async (contactId) => {
-  const result = await Contact.findById(contactId);
-  return result || null;
+const addContact = async (req, res) => {
+  const result = await Contact.create(req.body);
+  res.status(201).json(result);
 };
 
-const addContact = async (body) => {
-  const result = await Contact.create(body);
-  console.log(result);
-  return result;
+const updateContact = async (req, res) => {
+  const { id } = req.params;
+  const result = await Contact.findByIdAndUpdate(id, req.body, { new: true });
+  if (!result) {
+    throw HttpError(404, "Not found");
+  }
+  res.json(result);
 };
 
-const updateContact = async (contactId, body) => {
-  const result = await Contact.findByIdAndUpdate(contactId, body, {
-    new: true,
+const updateStatusContact = async (req, res) => {
+  const { id } = req.params;
+  const result = await Contact.findByIdAndUpdate(id, req.body, { new: true });
+  if (!result) {
+    throw HttpError(404, "Not found");
+  }
+  res.json(result);
+};
+
+const removeContact = async (req, res) => {
+  const { id } = req.params;
+  const result = await Contact.findByIdAndRemove(id);
+  if (!result) {
+    throw HttpError(404, "Not found");
+  }
+  res.json({
+    message: "Delete success",
   });
-  return result;
 };
 
-const removeContact = async (contactId) => {
-  const result = await Contact.findByIdAndRemove(contactId);
-  return result;
-};
 
 module.exports = {
   listContacts: ctrlWrapper(listContacts),
@@ -40,5 +56,5 @@ module.exports = {
   updateStatusContact: ctrlWrapper(updateStatusContact),
   addContact: ctrlWrapper(addContact),
   updateContact: ctrlWrapper(updateContact),
-  removeContact,
+  removeContact: ctrlWrapper(removeContact),
 };
