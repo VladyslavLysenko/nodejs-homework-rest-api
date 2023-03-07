@@ -4,10 +4,7 @@ const cors = require("cors");
 const contactsRouter = require("./routes/api/contacts");
 const authRouter = require("./routes/api/auth");
 require("dotenv").config();
-// const dotenv = require("dotenv").config();
 const app = express();
-
-// dotenv.config();
 
 const formatsLogger = app.get("env") === "development" ? "dev" : "short";
 
