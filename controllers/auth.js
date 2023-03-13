@@ -6,8 +6,6 @@ const { User } = require("../models/user");
 const { HttpError, ctrlWrapper } = require("../helpers");
 
 const { SECRET_KEY } = process.env;
-// console.log("auth", SECRET_KEY);
-// console.log(process.env);
 
 const register = async (req, res) => {
   const { email, password } = req.body;
@@ -29,7 +27,6 @@ const login = async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
-  // console.log(user);
 
   if (!user) {
     throw HttpError(401, "Email or password invalid");
