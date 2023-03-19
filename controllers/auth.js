@@ -6,7 +6,7 @@ const path = require("path");
 const fs = require("fs/promises");
 
 const { User } = require("../models/user");
-const { HttpError, ctrlWrapper } = require("../helpers");
+const { HttpError, ctrlWrapper, doResizeImage } = require("../helpers");
 
 const { SECRET_KEY } = process.env;
 
@@ -78,6 +78,7 @@ const logout = async (req, res) => {
 const updateAvatar = async (req, res) => {
   const { _id } = req.user;
   const { path: tempUpload, originalname } = req.file;
+   await doResizeImage(tempUpload);
   const filename = `${_id}_${originalname}`;
   const resultUpload = path.join(avatarsDir, filename);
   await fs.rename(tempUpload, resultUpload);
