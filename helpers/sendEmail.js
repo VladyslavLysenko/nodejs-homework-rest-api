@@ -13,7 +13,7 @@ const nodemailerConfig = {
   },
 };
 
-const sendEmail = nodemailer.createTransport(nodemailerConfig);
+const transport = nodemailer.createTransport(nodemailerConfig);
 
 const email = {
   to: "lobate3059@oniecan.com",
@@ -22,9 +22,5 @@ const email = {
   html: "<p><strong>Test email</strong> from localhost:3000</p>",
 };
 
-sendEmail
-  .sendMail(email)
-  .then(() => console.log("Email send success"))
-  .catch((error) => console.log(error.message));
 
-module.exports = sendEmail;
+module.exports = transport;

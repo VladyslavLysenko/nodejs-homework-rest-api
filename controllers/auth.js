@@ -7,7 +7,11 @@ const fs = require("fs/promises");
 const { nanoid } = require("nanoid");
 
 const { User } = require("../models/user");
-const { HttpError, ctrlWrapper, doResizeImage,sendEmail, } = require("../helpers");
+const {
+  HttpError,
+  ctrlWrapper,
+  doResizeImage,
+} = require("../helpers");
 
 const { SECRET_KEY, BASE_URL } = process.env;
 
@@ -23,7 +27,7 @@ const register = async (req, res) => {
 
   const hashPassword = await bcrypt.hash(password, 10);
   const avatarURL = gravatar.url(email);
-   const verificationCode = nanoid();
+  const verificationCode = nanoid();
 
   const newUser = await User.create({
     ...req.body,
@@ -32,12 +36,11 @@ const register = async (req, res) => {
     verificationCode,
   });
 
-      const verifyEmail = {
-        to: email,
-        subject: "Verify email",
-        html: `<a target="_blank" href="${BASE_URL}/api/auth/verify/${verificationCode}">Click verify email</a>`,
+  const verifyEmail = {
+    to: email,
+    subject: "Verify email",
+    html: `<a target="_blank" href="${BASE_URL}/api/auth/verify/${verificationCode}">Click verify email</a>`,
   };
-      await sendEmail(verifyEmail);
 
   res.status(201).json({
     email: newUser.email,
@@ -70,7 +73,7 @@ const resendVerifyEmail = async (req, res) => {
   if (user.verify) {
     throw HttpError(401, "Email already verify");
   }
-}
+};
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -90,7 +93,7 @@ const login = async (req, res) => {
     id: user._id,
   };
   const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "23h" });
-  
+
   await User.findByIdAndUpdate(user._id, { token });
 
   res.json({
@@ -118,7 +121,7 @@ const logout = async (req, res) => {
 const updateAvatar = async (req, res) => {
   const { _id } = req.user;
   const { path: tempUpload, originalname } = req.file;
-   await doResizeImage(tempUpload);
+  await doResizeImage(tempUpload);
   const filename = `${_id}_${originalname}`;
   const resultUpload = path.join(avatarsDir, filename);
   await fs.rename(tempUpload, resultUpload);
