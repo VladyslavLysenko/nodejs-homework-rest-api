@@ -41,8 +41,36 @@ const register = async (req, res) => {
 
   res.status(201).json({
     email: newUser.email,
+    name: newUser.name,
   });
 };
+
+const verifyEmail = async (req, res) => {
+  const { verificationCode } = req.params;
+  const user = await User.findOne({ verificationCode });
+  if (!user) {
+    throw HttpError(401, "Email not found");
+  }
+  await User.findByIdAndUpdate(user._id, {
+    verify: true,
+    verificationCode: "",
+  });
+
+  res.json({
+    message: "Email verify success",
+  });
+};
+
+const resendVerifyEmail = async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw HttpError(401, "Email not found");
+  }
+  if (user.verify) {
+    throw HttpError(401, "Email already verify");
+  }
+}
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -62,6 +90,7 @@ const login = async (req, res) => {
     id: user._id,
   };
   const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "23h" });
+  
   await User.findByIdAndUpdate(user._id, { token });
 
   res.json({
@@ -107,4 +136,6 @@ module.exports = {
   getCurrent: ctrlWrapper(getCurrent),
   logout: ctrlWrapper(logout),
   updateAvatar: ctrlWrapper(updateAvatar),
+  verifyEmail: ctrlWrapper(verifyEmail),
+  resendVerifyEmail: ctrlWrapper(resendVerifyEmail),
 };
