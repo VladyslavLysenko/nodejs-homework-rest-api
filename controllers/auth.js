@@ -11,6 +11,7 @@ const {
   HttpError,
   ctrlWrapper,
   doResizeImage,
+  sendEmail,
 } = require("../helpers");
 
 const { SECRET_KEY, BASE_URL } = process.env;
@@ -27,36 +28,41 @@ const register = async (req, res) => {
 
   const hashPassword = await bcrypt.hash(password, 10);
   const avatarURL = gravatar.url(email);
-  const verificationCode = nanoid();
+  const verificationToken = nanoid();
 
   const newUser = await User.create({
     ...req.body,
     password: hashPassword,
     avatarURL,
-    verificationCode,
+    verificationToken,
   });
 
   const verifyEmail = {
+    from: "vladyslavlysenko@meta.ua",
     to: email,
     subject: "Verify email",
-    html: `<a target="_blank" href="${BASE_URL}/api/auth/verify/${verificationCode}">Click verify email</a>`,
+    html: `<a target="_blank" href="${BASE_URL}/api/auth/verify/${verificationToken}">Click verify email</a>`,
   };
 
+sendEmail(verifyEmail);
   res.status(201).json({
     email: newUser.email,
     name: newUser.name,
   });
+
+  
 };
 
 const verifyEmail = async (req, res) => {
   const { verificationCode } = req.params;
-  const user = await User.findOne({ verificationCode });
+  const user = await User.findOne({ verificationToken: verificationCode });
+  console.log(user);
   if (!user) {
     throw HttpError(401, "Email not found");
   }
   await User.findByIdAndUpdate(user._id, {
     verify: true,
-    verificationCode: "",
+    verificationToken: "",
   });
 
   res.json({
